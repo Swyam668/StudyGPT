@@ -3,6 +3,17 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import LoginPage from './pages/Auth/LoginPage';
 import RegisterPage from './pages/Auth/RegisterPage';
 import NotFoundPage from './pages/NotFoundPage';
+import ProtectedRoute from './components/auth/ProtectedRoute';
+import DashboardPage from './pages/Dashboard/DashboardPage';
+import DocumentListPage from './pages/Documents/DocumentListPage';
+import DocumentDetailPage from './pages/Documents/DocumentDetailPage';
+import FlashcardsListPage from './pages/FlashCards/FlashcardsListPage'
+import FlashcardPage from './pages/FlashCards/FlashcardPage';
+import QuizTakePage from './pages/Quizzes/QuizTakePage';
+import QuizResultPage from './pages/Quizzes/QuizResultPage';
+import ProfilePage from './pages/Profile/ProfilePage';
+
+
 
 const App = () => {
   const isAuthenticated = false
@@ -25,7 +36,19 @@ const App = () => {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
-        
+        {/* ProtectedRoutes */}
+        {/* ProtectedRoute here is the parent route which always renders itself and renders child inside it  */}
+        <Route element={<ProtectedRoute />} >
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/documents" element={<DocumentListPage />} />
+          <Route path="/dashboard" element={<DocumentDetailPage />} />
+          <Route path="/flashcards" element={<FlashcardsListPage />} />
+          {/* for example documents/os/flashcards, documents/math/flashcards */}
+          <Route path="/documents/:id/flashcards" element={<FlashcardPage />} />
+          <Route path='/quizzes/:quizId' element={<QuizTakePage />} />
+          <Route path='/quizzes/:quizId/results' element={<QuizResultPage />} />
+          <Route path='/profile' element={<ProfilePage />} />
+        </Route>
 
         <Route path='*' element={<NotFoundPage />} />
       </Routes>
