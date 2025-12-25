@@ -7,6 +7,7 @@ import cors from 'cors';
 import path from 'path';
 // converts url to normal system paths
 import { fileURLToPath } from 'url';
+import errorHandler from './middleware/errorHandler.js'
 
 // import.meta -- obeject with metadata about current module
 // import.meta.url -- current module's filepath url
@@ -44,6 +45,7 @@ app.use('/uploads', express.static(path.join(__dirname, "uploads")));
 
 //ROUTES
 
+app.use(errorHandler);
 
 // 404 handler
 // if all routes are passed (they keep running next) -- and eventually this comes (all routes exhausted), it means invalid route is entered by the user
