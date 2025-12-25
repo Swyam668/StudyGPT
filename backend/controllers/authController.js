@@ -40,6 +40,7 @@ export const register = async (req, res, next) => {
         // generating token with (created) user's id in database
         const token = generateToken(user._id);
 
+        // success and new resource (account in database) created -- 201 
         res.status(201).json({
             success: true,
             data: {
@@ -67,6 +68,54 @@ export const register = async (req, res, next) => {
 // public route
 export const login = async (req, res, next) => {
     try{
+        const { email, password } = req.body;
+
+        // validating input
+        if(!email || !password){
+            res.status(400).json({
+                success: false,
+                error: 'Please provide both email and password',
+                statusCode: 400,
+            });
+        }
+
+        // check the matching user entry (or document), the select in password field is false (means by default it wont get selected)
+        // add password for further comparision
+        const user = await User.findOne({ email }).select('+password');
+        
+        if(!user){
+            return res.status(401).json({
+                success: false,
+                error: 'Invalid credentials!',
+                statusCode: 401,
+            });
+        }
+
+        const isMatch = await user.matchPassword(password);
+
+        if(!isMatch){
+            return res.status(401).json({
+                success: false,
+                error: 'Invalid credentials!',
+                statusCode: 401,
+            });
+        }
+
+        //generating token for logged-in user
+        const token = generateToken(user._id);
+
+        // success and server returned requested data 
+        res.status(200).json({
+            success: true,
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email,
+                profileimage: user.profileImage,
+            },
+            token,
+            message: 'Login successfull',
+        });
 
     }
     catch(error){
@@ -79,7 +128,19 @@ export const login = async (req, res, next) => {
 // private route
 export const getProfile = async (req, res, next) => {
     try{
+        const user = await User.findById(req.user._id);
 
+        res.status(200).json({
+            success: true,
+            data: {
+                id: user._id,
+                username: user.username,
+                email: user.email,
+                profileImage: user.profileImage,
+                createdAt: user.createdAt,
+                updatedAt: user.updatedAt,
+            },
+        });
     }
     catch(error){
         next(error);
@@ -91,7 +152,26 @@ export const getProfile = async (req, res, next) => {
 // private route
 export const updateProfile = async (req, res, next) => {
     try{
+        const { username, email, profileImage } = req.body;
 
+        const user = await User.findById(req.user._id);
+
+        if(username) user.username = username;
+        if(email) user.email = email;
+        if(profileImage) user.profileImage = profileImage;
+
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            data: {
+                id: user._id,
+                username: user.username,
+                email: user.email,
+                profileImage: user.profileImage,
+            },
+            message: 'Profile updated successfully',
+        });
     }
     catch(error){
         next(error);
@@ -103,7 +183,37 @@ export const updateProfile = async (req, res, next) => {
 // private route
 export const changePassword = async (req, res, next) => {
     try{
+        const { currentPassword, newPassword } = req.body;
 
+        if(!currentPassword || !newPassword){
+            return res.status(400).json({
+                success: false,
+                error: 'Please provide both current and new password',
+                statusCode: 400,
+            });
+        }
+        // get password also, for checking entered one
+        const user = await User.findById(req.user._id).select('+password');
+
+        const isMatch = user.matchPassword(currentPassword);
+
+        if(!isMatch){
+            return res.status(401).json({
+                success: false,
+                error: 'Current Password is incorrect',
+                statusCode: 401
+            });
+        }
+
+
+        user.password = newPassword;
+        user.save();
+        // no need to hash the password, as pre middleware will be called (written in User model) before save and will hash this modified password
+
+        res.status(200).json({
+            success: true,
+            message: 'Password changed sucessfully',
+        });
     }
     catch(error){
         next(error);

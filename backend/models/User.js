@@ -38,10 +38,13 @@ const userSchema = new mongoose.Schema({
 
 // run this middleware before mongoDB save function
 // to hash password before saving it
-userSchema.pre('save', async function(next) {
+userSchema.pre('save', async function() {
     // if password is not changed (something else is saved, then we may call mongoDB save function), then it will rehash if we didnt check this, hence hashed password is hashed again, creating problems in login
     if(!this.isModified('password')){
-        next();
+        // when middleware is async. mongoose does not provide 'next' function
+        // so to exit, just return
+        // mongoose will still move to next middleware (now worries)
+        return;
     }
     
     // both are async
