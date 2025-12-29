@@ -28,6 +28,7 @@ const documentSchema = new mongoose.Schema({
         default: ''
     },
     // document is sent in chunks to avoid exceeding API limits
+    // array of chunk objects
     chunks: [{
         content: {
             type: String,

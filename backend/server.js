@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+// to add env variables in process.enc (which is globally accessible across the node process)
 dotenv.config();
 
 import express from 'express';
