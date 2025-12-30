@@ -162,7 +162,36 @@ export const getDocuments = async (req, res, next) => {
 // private route
 export const getDocument = async (req, res, next) => {
     try {
-        
+        const document = await Document.findOne({
+            _id: req.params.id,
+            userId: req.user._id
+        });
+
+        if(!document){
+            // 404 -- resource not found
+            return res.status(404).json({
+                success: false,
+                error: 'Document not found',
+                statusCOde: 404
+            });
+        }
+
+        // count of associated flashcards and quizzes
+        const flashcardCount = await Flashcard.countDocuments({ documentId: document._id, userId: req.user._id });
+        const quizCount = await Quiz.countDocuments({ documentId: document._id, userId: req.user._id });
+
+        document.lastAccessed = Date.now();
+        await document.save();
+
+        // to access properties, gotta convert to js object
+        const documentData = document.toObject();
+        documentData.flashcardCount = flashcardCount;
+        documentData.quizCount = quizCount;
+
+        res.status(200).json({
+            success: true,
+            data: documentData
+        });
     } catch (error){
         next(error);
     }
@@ -173,7 +202,29 @@ export const getDocument = async (req, res, next) => {
 // private route
 export const deleteDocument = async (req, res, next) => {
     try {
-        
+        const document = await Document.findOne({
+            _id: req.params.id,
+            userId: req.user._id
+        });
+
+
+        if(!document){
+            return res.status(404).json({
+                success: false,
+                error: 'Document not found',
+                statusCode: 404
+            });
+        }
+
+        // have to give 'unlink' local path on our server
+        await fs.unlink(document.filePath).catch(() => {});
+
+        await document.deleteOne();
+
+        res.status(200).json({
+            success: true,
+            message: 'Document deleted successfully'
+        });
     } catch (error){
         next(error);
     }

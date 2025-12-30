@@ -10,9 +10,10 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import connectDB from './config/db.js';
 import errorHandler from './middleware/errorHandler.js';
-
+// NOTE -- Remember to specify file extension as js
 import authRoutes from './routes/authRoutes.js';
 import documentRoutes from './routes/documentRoutes.js';
+import flashcardRoutes from './routes/flashcardRoutes.js';
 
 // import.meta -- obeject with metadata about current module
 // import.meta.url -- current module's filepath url
@@ -52,6 +53,7 @@ app.use('/uploads', express.static(path.join(__dirname, "uploads")));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/documents', documentRoutes);
+app.use('/api/flashcards', flashcardRoutes)
 
 app.use(errorHandler);
 
