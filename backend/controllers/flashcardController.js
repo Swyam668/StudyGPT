@@ -109,7 +109,7 @@ export const toggleStarFlashcard = async (req, res, next) => {
 
         const cardIndex = flashcardSet.cards.findIndex(card => card._id.toString() === req.params.cardId);
 
-        if(cardIndex != -1){
+        if(cardIndex === -1){
             return res.status(404).json({
                 success: false,
                 error: 'Card not found in set',
@@ -118,7 +118,7 @@ export const toggleStarFlashcard = async (req, res, next) => {
         }
 
         // toggle star (! -- toggling action)
-        flashcardSet.cards[cardIndex].isStarred = !flashcardSet.card[cardIndex].isStarred;
+        flashcardSet.cards[cardIndex].isStarred = !flashcardSet.cards[cardIndex].isStarred;
 
         await flashcardSet.save();
 
