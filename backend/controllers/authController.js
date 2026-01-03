@@ -19,6 +19,7 @@ export const register = async (req, res, next) => {
         const userExists = await User.findOne({ $or: [{ email }] });
 
         if(userExists){
+            // why send statusCode in response -- so that we can recieve them at frontend and work accordingly to it, like we logout if user does something that throws 404 or 401 (unauthorised) etc..
             return res.status(400).json({
                 success: false,
                 error:

@@ -185,7 +185,7 @@ export const findRelevantChunks = (chunks, query, maxChunks = 3) => {
         const normalizedScore = score / Math.sqrt(contentWords);
 
         // smaller bonus for earlier chunks
-        const positionBonus = 1 - (index/chunk.length) * 0.1;
+        const positionBonus = 1 - (index/chunks.length) * 0.1;
 
         return {
             content: chunk.content,
