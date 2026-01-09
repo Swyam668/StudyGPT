@@ -12,12 +12,12 @@ import FlashcardPage from './pages/FlashCards/FlashcardPage';
 import QuizTakePage from './pages/Quizzes/QuizTakePage';
 import QuizResultPage from './pages/Quizzes/QuizResultPage';
 import ProfilePage from './pages/Profile/ProfilePage';
+import { useAuth } from './context/AuthContext';
 
 
 
 const App = () => {
-  const isAuthenticated = false
-  const loading = false
+  const {isAuthenticated, loading} = useAuth();
 
   if(loading){
     return (
@@ -41,7 +41,7 @@ const App = () => {
         <Route element={<ProtectedRoute />} >
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/documents" element={<DocumentListPage />} />
-          <Route path="/dashboard" element={<DocumentDetailPage />} />
+          <Route path="/documents/:id" element={<DocumentDetailPage />} />
           <Route path="/flashcards" element={<FlashcardsListPage />} />
           {/* for example documents/os/flashcards, documents/math/flashcards */}
           <Route path="/documents/:id/flashcards" element={<FlashcardPage />} />
