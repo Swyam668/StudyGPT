@@ -1,4 +1,4 @@
-import React, {createContext, useContext, useState, useEffect, Children } from "react";
+import React, {createContext, useContext, useState, useEffect } from "react";
 
 // this is a context -- a pipeline where all auth related data is made available globally to all children of <App/> Component
 // we can use this context anywhere, so prop drilling is avoided
@@ -57,7 +57,7 @@ export const AuthProvider = ({ children }) => {
 
     const logout = () => {
         localStorage.removeItem('token');
-        localStorage.removeItem('userData');
+        localStorage.removeItem('user');
 
         setUser(null);
         setIsAuthenticated(false);

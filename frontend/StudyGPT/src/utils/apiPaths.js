@@ -1,5 +1,3 @@
-import { generateFlashcards } from "../../../../backend/utils/geminiService";
-
 export const BASE_URL = "http://localhost:8000";
 
 export const API_PATHS = {
