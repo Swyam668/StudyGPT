@@ -35,7 +35,7 @@ export const uploadDocument = async (req, res, next) => {
         }
 
         // constructing URL for uploaded document, now any function in our code (and frontend also (directly)) can access the uploaded document using this URL 
-        const baseUrl = `https://localhost:${process.env.PORT || 8000}`;
+        const baseUrl = `http://localhost:${process.env.PORT || 8000}`;
         // we used middleware for storing uploads in uploads folder by using /uploads
         // .filename etc methods come from multer
         // 

@@ -322,61 +322,93 @@ const DocumentListPage = () => {
     </div>
   </div>)
 }
-  <div className="">
-    <div className="">
-      {/* Close Button */}
-      <button
-       onClick={() => setIsDeleteModalOpen(false)}
-       className=""
+  {isDeleteModalOpen && (<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+  <div
+    className="
+      relative w-full max-w-md rounded-2xl border border-slate-800
+      bg-slate-900/85 p-6 shadow-xl shadow-black/40
+    "
+  >
+    {/* Close Button */}
+    <button
+      onClick={() => setIsDeleteModalOpen(false)}
+      className="
+        absolute right-4 top-4 rounded-lg p-2 text-slate-400 transition
+        hover:bg-slate-800 hover:text-slate-200
+      "
+    >
+      <X className="h-5 w-5" strokeWidth={2} />
+    </button>
+
+    {/* Modal Header */}
+    <div className="mb-4 flex flex-col items-center text-center">
+      <div
+        className="
+          mb-3 flex h-12 w-12 items-center justify-center
+          rounded-full bg-red-500/10
+        "
       >
-        <X className="" strokeWidth={2} />
+        <Trash2 className="h-6 w-6 text-red-400" strokeWidth={2} />
+      </div>
+
+      <h2 className="text-lg font-semibold text-slate-100">
+        Confirm Deletion
+      </h2>
+    </div>
+
+    {/* Content */}
+    <p className="mb-6 text-sm text-slate-400 text-center leading-relaxed">
+      Are you sure you want to delete the document{" "}
+      <span className="font-medium text-slate-200">
+        {selectedDoc?.title}
+      </span>
+      ? This action{" "}
+      <span className="font-medium text-red-400">
+        cannot be undone
+      </span>.
+    </p>
+
+    {/* Action Buttons */}
+    <div className="flex items-center justify-end gap-3">
+      <button
+        type="button"
+        onClick={() => setIsDeleteModalOpen(false)}
+        disabled={deleting}
+        className="
+          rounded-lg px-4 py-2 text-sm font-medium text-slate-300
+          transition hover:bg-slate-800 disabled:opacity-50
+        "
+      >
+        Cancel
       </button>
 
-      {/* Modal Header */}
-      <div className="">
-        <div className="">
-          <Trash2 className="" strokeWidth={2} />
-        </div>
-        <h2 className="">
-          Confirm Deletion
-        </h2>
-      </div>
-
-      {/* Content */}
-      <p className="">
-        Are you sure you want to delete the document:{" "}
-        <span className="">
-          {selectedDoc?.title}
-        </span>
-        ? This action cannot be undone.
-      </p>
-      
-      {/* Action Buttons */}
-      <div className="">
-        <button
-         type="button"
-         onClick={() => setIsDeleteModalOpen(false)}
-         disabled={deleting}
-         className=""
-        >
-          Cancel
-        </button>
-        <button
-          onClick={handleConfirmdelete}
-          disabled={deleting}
-          className="">
-            {deleting ? (
-              <span className="">
-                <div className="" />
-                Deleting...
-              </span>
-            ) : (
-              "Delete"
-            )}
-          </button>
-      </div>
+      <button
+        onClick={handleConfirmdelete}
+        disabled={deleting}
+        className="
+          inline-flex items-center justify-center gap-2 rounded-lg
+          bg-red-500/90 px-5 py-2 text-sm font-semibold text-white
+          transition hover:bg-red-400 disabled:opacity-60
+        "
+      >
+        {deleting ? (
+          <span className="flex items-center gap-2">
+            <div
+              className="
+                h-4 w-4 animate-spin rounded-full
+                border-2 border-white border-t-transparent
+              "
+            />
+            Deleting...
+          </span>
+        ) : (
+          "Delete"
+        )}
+      </button>
     </div>
   </div>
+</div>)}
+
   
   </div>
 );
