@@ -75,8 +75,85 @@ const ChatInterface = () => {
     };
 
     const renderMessage = (msg, index) => {
-        return "renderMessage";
-    };
+  const isUser = msg.role == 'user';
+
+  return (
+    <div
+      key={index}
+      className={`
+        w-full flex items-start gap-2 mb-3
+        ${isUser ? 'justify-end' : 'justify-start'}
+      `}
+    >
+      {/* AI Avatar */}
+      {!isUser && (
+        <div
+          className="
+            flex-shrink-0
+            h-8 w-8 rounded-lg
+            bg-cyan-500/15 border border-cyan-400/30
+            flex items-center justify-center
+            shadow-[0_0_10px_rgba(34,211,238,0.35)]
+          "
+        >
+          <Sparkles className="h-4 w-4 text-cyan-300" strokeWidth={2} />
+        </div>
+      )}
+
+      {/* Message Bubble */}
+      <div
+        className={`
+          max-w-[72%] md:max-w-[60%]
+          px-3 py-2 rounded-xl
+          backdrop-blur-lg
+          text-xs md:text-sm
+          shadow-md
+          ${
+            isUser
+              ? `
+                bg-cyan-400/20 border border-cyan-400/40
+                text-cyan-100
+                rounded-br-md
+              `
+              : `
+                bg-[#0b1e2d]/80 border border-cyan-400/25
+                text-cyan-100
+                rounded-bl-md
+              `
+          }
+        `}
+      >
+        {isUser ? (
+          <p className="leading-snug whitespace-pre-wrap">
+            {msg.content}
+          </p>
+        ) : (
+          <div className="space-y-1.5">
+            <MarkdownRenderer content={msg.content} />
+          </div>
+        )}
+      </div>
+
+      {/* User Avatar */}
+      {isUser && (
+        <div
+          className="
+            flex-shrink-0
+            h-8 w-8 rounded-lg
+            bg-cyan-500/30 border border-cyan-400/40
+            flex items-center justify-center
+            text-cyan-100 text-xs font-semibold
+            shadow-[0_0_10px_rgba(34,211,238,0.45)]
+          "
+        >
+          {user?.username?.charAt(0).toUpperCase() || 'U'}
+        </div>
+      )}
+    </div>
+  );
+};
+
+
 
     if(initialLoading) {
         return (
@@ -137,6 +214,9 @@ const ChatInterface = () => {
         </div>
     ) : (
         history.map(renderMessage)
+        // same as history.map((element, index) => {
+        // return renderMessage(element, index);
+        // });
     )}
 
     {/* Typing Indicator (stays at bottom naturally) */}
@@ -168,6 +248,47 @@ const ChatInterface = () => {
     </div>
 </div>
 
+       {/* Input Area */}
+        <div className="relative w-full px-4 pb-4">
+        <form
+            onSubmit={handleSendMessage}
+            className="flex items-center gap-3 bg-[#0b1e2d]/80 backdrop-blur-xl border border-cyan-400/30 rounded-2xl px-4 py-3 shadow-[0_0_25px_rgba(34,211,238,0.15)]"
+        >
+            <input
+            type="text"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Ask a follow-up question..."
+            disabled={loading}
+            className="
+                flex-1 bg-transparent text-cyan-100 placeholder-cyan-400/60
+                outline-none border-none
+                text-sm md:text-base
+                focus:ring-0
+                disabled:opacity-50
+            "
+            />
+
+            <button
+            type="submit"
+            disabled={loading || !message.trim()}
+            className="
+                group flex items-center justify-center
+                h-10 w-10 rounded-xl
+                bg-cyan-500/20 border border-cyan-400/40
+                text-cyan-300
+                transition-all duration-300
+                hover:bg-cyan-400/30 hover:shadow-[0_0_20px_rgba(34,211,238,0.6)]
+                disabled:opacity-40 disabled:cursor-not-allowed
+            "
+            >
+            <Send
+                strokeWidth={2}
+                className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-0.5"
+            />
+            </button>
+        </form>
+        </div>
 
             
         </div>
