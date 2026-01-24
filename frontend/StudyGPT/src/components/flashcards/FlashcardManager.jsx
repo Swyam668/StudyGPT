@@ -66,6 +66,9 @@ const FlashcardManager = ({documentId}) => {
         if(selectedSet) {
             handleReview(currentCardIndex);
             setCurrentCardIndex(
+                // prevIndex comes from React itself
+                // this is changed, rather than currentCardIndex, becuase that is unsafe
+                // prevIndex === the latest value of currentCardIndex at the moment React applies the update
                 (prevIndex) => (prevIndex + 1) % selectedSet.cards.length
             );
         }
@@ -82,8 +85,8 @@ const FlashcardManager = ({documentId}) => {
         }
     };
 
-    const handleReview = async () => {
-        const currentCard = selectedSet?.cards(currentCardIndex);
+    const handleReview = async (index) => {
+        const currentCard = selectedSet?.cards[currentCardIndex];
         if(!currentCard) return;
 
         try {
@@ -94,6 +97,27 @@ const FlashcardManager = ({documentId}) => {
         }
     };
 
+    // for faster loading, directly updating the frontend, no need to re-load -- because typically, reviewing a card should not reload a page completely, so we prevent it by updating the state and not calling 'fetchFlashcardSet()' function, unlike when we delete a flashcard set
+    const handleToggleStar = async (cardId) => {
+        try {
+            await flashcardService.toggleStar(cardId);
+            const updatedSets = flashcardSets.map((set) => {
+                if(set._id === selectedSet._id){
+                    const updatedCards = set.cards.map((card) => 
+                     card._id === cardId ? { ...card, isStarred: !card.isStarred } : card
+                );
+                return { ...set, cards: updatedCards };
+                }
+                return set;
+            });
+            setFlashcardSets(updatedSets);
+            setSelectedSet(updatedSets.find((set) => set._id === selectedSet._id));
+            toast.success("Flashcard starred!");
+        } catch (error) {
+            toast.error("Failed to make the flashcard starred.")
+        }
+    };
+
     const handleDeleteRequest = (e, set) => {
         e.stopPropagation();
         setSetToDelete(set);
@@ -101,7 +125,19 @@ const FlashcardManager = ({documentId}) => {
     };
 
     const handleConfirmDelete = async () => {
-
+        if(!setToDelete) return;
+        setDeleting(true);
+        try {
+            await flashcardService.deleteFlashcardSet(setToDelete._id);
+            toast.success("Flashcard set deleted successfully!");
+            setIsDeleteModalOpen(false);
+            setSetToDelete(null);
+            fetchFlashcardSets();
+        } catch (error) {
+            toast.error(error.message || "Failed to delete flashcard set.");
+        } finally {
+            setDeleting(false);
+        }
     };
 
     const handleSelectSet = (set) => {
@@ -110,7 +146,69 @@ const FlashcardManager = ({documentId}) => {
     };
 
     const renderFlashcardViewer = () => {
-        return "renderFlashcardViewer"
+        const currentCard = selectedSet.cards[currentCardIndex];
+
+        return (
+        <div className="space-y-6">
+            {/* Back Button */}
+            <button
+                onClick={() => setSelectedSet(null)}
+                className="flex items-center gap-2 text-sm font-medium text-cyan-300 transition hover:text-cyan-200"
+            >
+                <ArrowLeft
+                    className="h-4 w-4"
+                    strokeWidth={2}
+                />
+                Back to Sets
+            </button>
+
+            {/* Flashcard Display */}
+            <div className="flex flex-col items-center gap-6 rounded-2xl border border-cyan-400/20 bg-cyan-950/30 p-6 backdrop-blur">
+                <div className="w-full max-w-xl">
+                    <Flashcard
+                        flashcard={currentCard}
+                        onToggleStar={handleToggleStar}
+                    />
+                </div>
+
+                {/* Navigation Controls */}
+                <div className="flex w-full max-w-xl items-center justify-between gap-4">
+                    <button
+                        onClick={handlePrevCard}
+                        disabled={selectedSet.cards.length <= 1}
+                        className="flex items-center gap-2 rounded-xl border border-cyan-400/30 bg-cyan-500/10 px-4 py-2 text-sm font-medium text-cyan-300 transition-all hover:bg-cyan-400/20 hover:shadow-[0_0_15px_rgba(34,211,238,0.35)] disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                        <ChevronLeft
+                            className="h-4 w-4"
+                            strokeWidth={2.5}
+                        />
+                        Previous
+                    </button>
+
+                    <div className="rounded-full border border-cyan-400/30 bg-cyan-500/10 px-4 py-1.5">
+                        <span className="text-xs font-semibold text-cyan-300">
+                            {currentCardIndex + 1}{" "}
+                            <span className="text-cyan-400/60">/</span>{" "}
+                            {selectedSet.cards.length}
+                        </span>
+                    </div>
+
+                    <button
+                        onClick={handleNextCard}
+                        disabled={selectedSet.cards.length <= 1}
+                        className="flex items-center gap-2 rounded-xl border border-cyan-400/30 bg-cyan-500/10 px-4 py-2 text-sm font-medium text-cyan-300 transition-all hover:bg-cyan-400/20 hover:shadow-[0_0_15px_rgba(34,211,238,0.35)] disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                        Next
+                        <ChevronRight
+                            className="h-4 w-4"
+                            strokeWidth={2}
+                        />
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+
     };
 
     const renderSetList = () => {
@@ -244,10 +342,55 @@ const FlashcardManager = ({documentId}) => {
     
     
     return (
-        <div className="w-full h-full p-4 bg-[#0b0f16] rounded-2xl shadow-lg shadow-cyan-500/20 overflow-auto">
-            {selectedSet ? renderFlashcardViewer() : renderSetList()}
-        </div>
+        <>
+            <div className="w-full h-full p-4 bg-[#0b0f16] rounded-2xl shadow-lg shadow-cyan-500/20 overflow-auto">
+                {selectedSet ? renderFlashcardViewer() : renderSetList()}
+            </div>
 
+            {/* Delete Confirmation Modal */}
+            <Modal
+    isOpen={isDeleteModalOpen}
+    onClose={() => setIsDeleteModalOpen(false)}
+    title="Delete Flashcard Set"
+>
+    <div className="space-y-6">
+        <p className="text-sm leading-relaxed text-cyan-300/80">
+            Are you sure you want to delete this flashcard set?
+            <span className="block text-red-400/80">
+                This action cannot be undone.
+            </span>
+        </p>
+
+        <div className="flex justify-end gap-3 pt-2">
+            <button
+                type="button"
+                onClick={() => setIsDeleteModalOpen(false)}
+                disabled={deleting}
+                className="rounded-xl border border-cyan-400/30 bg-cyan-500/10 px-4 py-2 text-sm font-medium text-cyan-300 transition-all hover:bg-cyan-400/20 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+                Cancel
+            </button>
+
+            <button
+                onClick={handleConfirmDelete}
+                disabled={deleting}
+                className="flex items-center gap-2 rounded-xl border border-red-400/40 bg-red-500/10 px-4 py-2 text-sm font-semibold text-red-400 transition-all hover:bg-red-500/20 hover:shadow-[0_0_18px_rgba(248,113,113,0.45)] disabled:cursor-not-allowed disabled:opacity-50"
+            >
+                {deleting ? (
+                    <span className="flex items-center gap-2">
+                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-red-400 border-t-transparent" />
+                        Deleting...
+                    </span>
+                ) : (
+                    "Delete Set"
+                )}
+            </button>
+        </div>
+    </div>
+</Modal>
+
+
+        </>
 
     )
 }
