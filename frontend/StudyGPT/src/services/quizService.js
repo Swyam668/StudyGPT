@@ -39,7 +39,7 @@ const getQuizResults = async (quizId) => {
 
 const deleteQuiz = async (id) => {
     try {
-        const response = await axiosInstance.delete(API_PATHS.QUIZZES.DELETE_QUIZ(quizId));
+        const response = await axiosInstance.delete(API_PATHS.QUIZZES.DELETE_QUIZ(id));
         return response.data;
     } catch (error) {
         throw error.response?.data || { message: 'Failed to delete quiz' };
