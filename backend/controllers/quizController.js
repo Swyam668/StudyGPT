@@ -187,7 +187,7 @@ export const getQuizResults = async (req, res, next) => {
                     totalQuestions: quiz.totalQuestions,
                     completedAt: quiz.completedAt
                 },
-                result: detailedResults
+                results: detailedResults
             }
           });
 

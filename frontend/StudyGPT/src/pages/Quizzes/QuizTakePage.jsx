@@ -49,7 +49,7 @@ const QuizTakePage = () => {
         }
     };
 
-    const handlePrevioudQuestion = () => {
+    const handlePreviousQuestion = () => {
         if(currentQuestionIndex > 0){
             setCurrentQuestionIndex((prev) => prev - 1);
         }
@@ -58,7 +58,7 @@ const QuizTakePage = () => {
     const handleSubmitQuiz = async () => {
         setSubmitting(true);
         try {
-            const formattedAnswers = Object.keys(selectedAnswers).map(questionId => {
+                const formattedAnswers = Object.keys(selectedAnswers).map(questionId => {
                 const question = quiz.questions.find(q => q._id === questionId);
                 const questionIndex = quiz.questions.findIndex(q => q._id === questionId);
                 const optionIndex = selectedAnswers[questionId];
@@ -225,7 +225,7 @@ const QuizTakePage = () => {
             <div className="mt-6 flex items-center justify-between gap-4">
                 {/* Previous */}
                 <Button
-                    onClick={handlePrevioudQuestion}
+                    onClick={handlePreviousQuestion}
                     disabled={currentQuestionIndex === 0 || submitting}
                     variant="secondary"
                     className="
