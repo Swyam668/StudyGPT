@@ -235,28 +235,28 @@ const QuizResultPage = () => {
     </div>
 
     {/* Action Button */}
-<div className="mt-16 flex justify-center">
-    <Link to={`/documents/${quiz.document._id}`}>
-        <button
-            className="group relative flex items-center gap-3 rounded-2xl border border-cyan-400/40 bg-cyan-500/5 px-8 py-4 backdrop-blur-xl
-                       text-cyan-300 font-semibold tracking-wide transition-all duration-300
-                       hover:bg-cyan-400/10 hover:border-cyan-300 hover:text-cyan-200
-                       shadow-[0_0_25px_rgba(34,211,238,0.2)] hover:shadow-[0_0_40px_rgba(34,211,238,0.4)]"
-        >
-            <ArrowLeft
-                className="w-5 h-5 transition-transform duration-300 group-hover:-translate-x-1"
-                strokeWidth={2.5}
-            />
+        <div className="mt-16 flex justify-center">
+            <Link to={`/documents/${quiz.document._id}`}>
+                <button
+                    className="group relative flex items-center gap-3 rounded-2xl border border-cyan-400/40 bg-cyan-500/5 px-8 py-4 backdrop-blur-xl
+                            text-cyan-300 font-semibold tracking-wide transition-all duration-300
+                            hover:bg-cyan-400/10 hover:border-cyan-300 hover:text-cyan-200
+                            shadow-[0_0_25px_rgba(34,211,238,0.2)] hover:shadow-[0_0_40px_rgba(34,211,238,0.4)]"
+                >
+                    <ArrowLeft
+                        className="w-5 h-5 transition-transform duration-300 group-hover:-translate-x-1"
+                        strokeWidth={2.5}
+                    />
 
-            <span>
-                Return to Document
-            </span>
+                    <span>
+                        Return to Document
+                    </span>
 
-            {/* Glow accent line */}
-            <div className="absolute inset-x-4 -bottom-px h-px bg-gradient-to-r from-transparent via-cyan-400/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        </button>
-    </Link>
-</div>
+                    {/* Glow accent line */}
+                    <div className="absolute inset-x-4 -bottom-px h-px bg-gradient-to-r from-transparent via-cyan-400/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                </button>
+            </Link>
+        </div>
 
 
 </div>
