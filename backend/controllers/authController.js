@@ -196,7 +196,7 @@ export const changePassword = async (req, res, next) => {
         // get password also, for checking entered one
         const user = await User.findById(req.user._id).select('+password');
 
-        const isMatch = user.matchPassword(currentPassword);
+        const isMatch = await user.matchPassword(currentPassword);
 
         if(!isMatch){
             return res.status(401).json({
@@ -208,7 +208,7 @@ export const changePassword = async (req, res, next) => {
 
 
         user.password = newPassword;
-        user.save();
+        await user.save();
         // no need to hash the password, as pre middleware will be called (written in User model) before save and will hash this modified password
 
         res.status(200).json({
