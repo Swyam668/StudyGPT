@@ -2,6 +2,7 @@ import { Star, RotateCcw } from "lucide-react";
 import { useState } from "react";
 
 const Flashcard = ({ flashcard, onToggleStar }) => {
+    
     const [isFlipped, setIsFlipped] = useState(false);
 
     const handleFlip = () => {

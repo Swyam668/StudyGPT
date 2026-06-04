@@ -29,27 +29,17 @@ const documentSchema = new mongoose.Schema({
     },
     // document is sent in chunks to avoid exceeding API limits
     // array of chunk objects
-    chunks: [{
-        content: {
-            type: String,
-            required: true
-        },
-        pageNumber: {
-            type: Number,
-            default: 0
-        },
-        chunkIndex: {
-            type: Number,
-            required: true
-        }
-    }],
+    chunkCount: {
+    type: Number,
+    default: 0
+    },
     uploadDate: {
         type: Date,
         default: Date.now
     },
     lastAccessed: {
         type: Date,
-        defaukt: Date.now
+        default: Date.now
     },
     status: {
         type: String,

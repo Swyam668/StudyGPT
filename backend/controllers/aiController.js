@@ -3,7 +3,8 @@ import FlashCard from '../models/Flashcard.js';
 import Quiz from '../models/Quiz.js';
 import ChatHistory from '../models/ChatHistory.js';
 import * as geminiService from '../utils/geminiService.js';
-import { findRelevantChunks } from '../utils/textChunker.js';
+import { generateEmbedding } from '../utils/embeddingService.js';
+import { retrieveRelevantChunks } from '../utils/vectorSearch.js';
 import Flashcard from '../models/Flashcard.js';
 
 // Generate flashcards from document
@@ -199,7 +200,57 @@ export const chat = async(req, res, next) => {
             });
         }
 
-        const relevantChunks = findRelevantChunks(document.chunks, question, 3);
+        // const queryEmbedding =
+        //     await generateEmbedding(
+        //         question
+        //     );
+
+        // const relevantChunks =
+        //     await retrieveRelevantChunks(
+        //         document._id,
+        //         queryEmbedding,
+        //         3
+        //     );
+
+        const queryEmbedding =
+            await generateEmbedding(
+                question
+            );
+
+        // testing RAG retrieved chunks by vector search
+        // using console logs
+        
+        // console.log(
+        //     "Query embedding length:",
+        //     queryEmbedding.length
+        // );
+
+        const relevantChunks =
+            await retrieveRelevantChunks(
+                document._id,
+                queryEmbedding,
+                3
+            );
+
+        // console.log(
+        //     "Retrieved chunks:"
+        // );
+
+        // relevantChunks.forEach(chunk => {
+        //     console.log(
+        //         "Chunk:",
+        //         chunk.chunkIndex
+        //     );
+
+        //     console.log(
+        //         chunk.content.substring(0, 200)
+        //     );
+
+        //     console.log(
+        //         "------------------"
+        //     );
+        // });
+
         const chunkIndices = relevantChunks.map(c => c.chunkIndex);
         
         
@@ -283,7 +334,17 @@ export const explainConcept = async (req, res, next) => {
         }
 
         // referring to relevant portion of document, to answer the concept 
-        const relevantChunks = findRelevantChunks(document.chunks, concept, 3);
+        const queryEmbedding =
+            await generateEmbedding(
+                concept
+            );
+
+        const relevantChunks =
+            await retrieveRelevantChunks(
+                document._id,
+                queryEmbedding,
+                3
+            );
         const context = relevantChunks.map(c => c.content).join('\n\n');
 
         const explanation = await geminiService.explainConcept(concept, context);

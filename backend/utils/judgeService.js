@@ -29,6 +29,7 @@ export const selectBestResponse = async (
         Do not explain.
         Do not write anything else.
         Just return the best response as it is.
+        No Need to tell which model or response you picked.
     `;
 
     return await callModel(

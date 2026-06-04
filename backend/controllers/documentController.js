@@ -9,6 +9,8 @@ import { chunkText } from '../utils/textChunker.js';
 // promise-based file system API, so async await can be easily used while using its methods to work with files
 import fs from 'fs/promises';
 import mongoose from 'mongoose';
+import Chunk from '../models/Chunk.js';
+import { generateEmbedding } from '../utils/embeddingService.js';
 
 // upload PDF document here
 // POST /api/documents/upload
@@ -71,6 +73,10 @@ export const uploadDocument = async (req, res, next) => {
     }
 };
 
+const sleep = (ms) =>
+    new Promise(resolve =>
+        setTimeout(resolve, ms)
+    );
 
 const processPDF = async(documentId, filePath) => {
     try{
@@ -80,9 +86,46 @@ const processPDF = async(documentId, filePath) => {
 
         await Document.findByIdAndUpdate(documentId, {
             extractedText: text,
-            chunks: chunks,
-            status: 'ready'
         });
+
+        const document = await Document.findById(documentId);
+
+
+        for(const chunk of chunks){
+
+            const embedding =
+                await generateEmbedding(
+                    chunk.content
+                );
+            
+            // console.log(
+            //     embedding.length
+            // );
+
+            await Chunk.create({
+                documentId,
+
+                userId: document.userId,
+
+                content: chunk.content,
+
+                chunkIndex: chunk.chunkIndex,
+
+                pageNumber: chunk.pageNumber,
+
+                embedding
+            });
+
+            await sleep(2000);
+        }
+
+        await Document.findByIdAndUpdate(
+            documentId,
+            {
+                chunkCount: chunks.length,
+                status: 'ready'
+            }
+        );
 
         console.log(`Document ${documentId} processed succesfully`);
     }
@@ -138,7 +181,6 @@ export const getDocuments = async (req, res, next) => {
                 // to include or exclude fields
                 $project: {
                     extractedText: 0,
-                    chunks: 0,
                     flashcardSets: 0,
                     quizzes: 0
                 }
@@ -221,6 +263,10 @@ export const deleteDocument = async (req, res, next) => {
 
         // have to give 'unlink' local path on our server
         await fs.unlink(document.filePath).catch(() => {});
+
+        await Chunk.deleteMany({
+            documentId: document._id
+        });
 
         await document.deleteOne();
 

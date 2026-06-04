@@ -1,14 +1,15 @@
 import dotenv from 'dotenv';
 import { GoogleGenAI } from '@google/genai';
+import { generateBestResponse } from './ensembleService.js';
 
 dotenv.config();
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-if(!process.env.GEMINI_API_KEY) {
-    console.error('FATAL ERROR: GEMINI_API_KEY is not set in environment variables.');
-    process.exit(1);
-}
+// if(!process.env.GEMINI_API_KEY) {
+//     console.error('FATAL ERROR: GEMINI_API_KEY is not set in environment variables.');
+//     process.exit(1);
+// }
 
 // generating flashcards from text
 // array of flashcards (question, answer and difficulty)
@@ -25,12 +26,8 @@ export const generateFlashcards = async (text, count = 10) =>{
     ${text.substring(0, 15000)}`;
 
     try {
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash-lite",
-            contents: prompt,
-        });
-
-        const generatedText = response.text;
+        const result = await generateBestResponse(prompt);
+        const generatedText = result.bestResponse;
 
         // parsing the response
         const flashcards = [];
@@ -63,7 +60,7 @@ export const generateFlashcards = async (text, count = 10) =>{
         return flashcards.slice(0, count);
     }
     catch(error){
-        console.error('Gemini API error', error);
+        console.error('API error', error);
         throw new Error('Failed to generate flashcards');
     }
 };
@@ -88,12 +85,9 @@ export const generateQuiz = async (text, numQuestions = 5) => {
     ${text.substring(0, 15000)}`;
 
     try {
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash-lite",
-            contents: prompt,
-        });
+        const response = await generateBestResponse(prompt);
 
-        const generatedText = response.text;
+        const generatedText = response.bestResponse;
 
         const questions = [];
         const questionBlocks = generatedText.split('---').filter(q => q.trim());
@@ -128,7 +122,7 @@ export const generateQuiz = async (text, numQuestions = 5) => {
 
         return questions.slice(0, numQuestions);
     } catch (error) {
-        console.error('Gemini API error', error);
+        console.error('API error', error);
         throw new Error('Failed to generate quiz');
     }
 };
@@ -143,15 +137,12 @@ export const generateSummary = async (text) => {
     ${text.substring(0, 20000)}`;
 
     try {
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash-lite",
-            contents: prompt,
-        });
+        const response = await generateBestResponse(prompt);
 
-        const generatedText = response.text;
+        const generatedText = response.bestResponse;
         return generatedText;
     } catch (error) {
-        console.error('Gemini API error', error);
+        console.error('API error', error);
         throw new Error('Failed to generate summary');
     }
 };
@@ -174,15 +165,12 @@ export const chatWithContext = async(question, chunks) => {
     Answer: `;
 
     try {
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash-lite",
-            contents: prompt,
-        });
+        const response = await generateBestResponse(prompt);
 
-        const generatedText = response.text;
+        const generatedText = response.bestResponse;
         return generatedText;
     } catch (error) {
-        console.error('Gemini API error', error);
+        console.error('API error', error);
         throw new Error('Failed to process chat request');
     }
 };
@@ -198,15 +186,12 @@ export const explainConcept = async(concept, context) => {
     ${context.substring(0,10000)}`;
 
     try {
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash-lite",
-            contents: prompt,
-        });
+        const response = await generateBestResponse(prompt);
 
-        const generatedText = response.text;
+        const generatedText = response.bestResponse;
         return generatedText;
     } catch (error) {
-        console.error('Gemini API error', error);
+        console.error('API error', error);
         throw new Error('Failed to explain concept');
     }
 }

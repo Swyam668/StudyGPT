@@ -11,11 +11,12 @@ export const extractTextFromPDF = async (filePath) => {
         // creating parser instance and for this we have to give unsigned 8 bits array -- storing data as list of bytes (8 bit) 
         const parser = new PDFParse(new Uint8Array(dataBuffer));
         const data = await parser.getText();
+        
 
         return {
             text: data.text,
             numPages: data.numPages,
-            info: data.info,
+            info: data.info
         };
     }
     catch(error){
