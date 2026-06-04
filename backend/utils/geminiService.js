@@ -196,3 +196,17 @@ export const explainConcept = async(concept, context) => {
     }
 }
 
+export const generateText = async (prompt) => {
+    try {
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: prompt
+        });
+
+        return response.text;
+    }
+    catch(error){
+        console.error(error);
+        throw error;
+    }
+};

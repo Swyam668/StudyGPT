@@ -6,6 +6,7 @@ import * as geminiService from '../utils/geminiService.js';
 import { generateEmbedding } from '../utils/embeddingService.js';
 import { retrieveRelevantChunks } from '../utils/vectorSearch.js';
 import Flashcard from '../models/Flashcard.js';
+import { rerankChunks } from '../utils/reranker.js';
 
 // Generate flashcards from document
 // POST /api/ai/generate-flashcards
@@ -225,31 +226,29 @@ export const chat = async(req, res, next) => {
         //     queryEmbedding.length
         // );
 
-        const relevantChunks =
+        const candidateChunks =
             await retrieveRelevantChunks(
                 document._id,
                 queryEmbedding,
-                3
+                10
             );
 
-        // console.log(
-        //     "Retrieved chunks:"
-        // );
+        const ranking =
+        await rerankChunks(
+            question,
+            candidateChunks
+        );
 
-        // relevantChunks.forEach(chunk => {
-        //     console.log(
-        //         "Chunk:",
-        //         chunk.chunkIndex
-        //     );
 
-        //     console.log(
-        //         chunk.content.substring(0, 200)
-        //     );
+        const relevantChunks =
+            ranking
+                .slice(0, 3)
+                .map(
+                    index =>
+                        candidateChunks[index]
+                );
 
-        //     console.log(
-        //         "------------------"
-        //     );
-        // });
+            
 
         const chunkIndices = relevantChunks.map(c => c.chunkIndex);
         
